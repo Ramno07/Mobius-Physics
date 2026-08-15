@@ -183,3 +183,16 @@ body {
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
   }
 }
+@media (max-width: 600px) {
+  .books {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .img1, .img2, .img3, .img4 {
+    width: 42%;
+    height: auto;
+  }
+}
