@@ -1,0 +1,297 @@
+:root {
+  --bg: #050810;
+  --surface: #0b1120;
+  --border: #1a2540;
+  --accent: #00e5ff;
+  --accent2: #ff4d6d;
+  --accent3: #c8ff57;
+  --text: #e8edf5;
+  --muted: #5a6a8a;
+  --card-bg: #0d1628;
+}
+body {
+  font-family: "Syne", sans-serif;
+  background: #050810;
+  color: #e8edf5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.logo {
+  display: flex;
+  justify-content: left;
+
+  .logo-text {
+    margin-top: 5px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #00e5ff;
+    margin-left: 0.5rem;
+  }
+  .logo-text{
+    text-decoration: none;
+
+  }
+  .logo-icon {
+    text-decoration: none;
+    font-size: 1.5rem;
+    border: #00e5ff 5px solid;
+    border-radius: 50%;
+    padding: 0.3rem;
+  }
+  .mobius-socials {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 5px;
+    color: #00E5FF;
+    font-weight: bold;
+    font-size: 0.9em;
+  }
+
+  .mobius-socials-label {
+    display: flex;
+    align-items: center;
+    display: block;
+    white-space: nowrap;
+  }
+
+  .mobius-socials-icons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+  }
+}
+.content {
+  text-align: center;
+  font-size: large;
+  color: #5a6a8a;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  
+  .books{
+    border:#00e5ff 5px solid; 
+    width: 100px;
+    height: 128px;
+   }
+  .img {
+    width: 100px;
+  }
+}
+.lvls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+
+  .lvl-link {
+    text-decoration: none;
+    color: #e8edf5;
+    border: 10px solid #00e5ff;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+  }
+  .lvl-link:hover {
+    background: #00e5ff;
+    color: #050810;
+  }
+}
+.mobius-container{
+  .why-mobius{
+    color: #FFD43B;
+    margin-top: 8rem;;
+
+  }
+  .mobius-description{
+    font-size: 0.7rem;
+    text-align: center;
+    color: #5a6a8a;
+  }
+  .name-mobius{
+    color: #00E5FF;
+    font-size: 0.9rem;
+  }
+}
+.footer {
+  margin-top: 5rem;
+  padding: 2srem 1.5rem 2.4rem;
+  border-top: 1px solid rgba(0, 229, 255, 0.25);
+  background: linear-gradient(
+    180deg,
+    rgba(11, 17, 32, 0.9),
+    rgba(5, 8, 16, 0.98)
+  );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--muted);
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+
+  .creator {
+    margin: 0;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.5rem;
+    line-height: 1;
+    color: var(--muted);
+  }
+
+  .creator a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.25s ease;
+  }
+  .creator a:hover {
+    text-decoration: none;
+  }
+  .creator a:visited {
+    color: var(--accent);
+  }
+}
+/* Academic Subjects */
+.subjects {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 3rem;
+  text-align: center;
+  .subject-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    scroll-margin-top: 1rem;
+  }
+  .h2 {
+    font-size: 2rem;
+    color: #00e5ff;
+    margin-bottom: 1rem;
+  }
+
+  .subject-link {
+    text-decoration: none;
+    color: #e8edf5;
+    border: 4px solid #00e5ff;
+    padding: 0.5rem 5rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+  }
+  .subject-link:hover {
+    background: #00e5ff;
+    color: #050810;
+  }
+}
+
+.math-physics {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin-top: 1rem;
+
+}
+
+.math-physics a {
+  color: var(--text);
+  text-decoration: none;
+  border: 2px solid var(--accent);
+  border-radius: 999px;  
+  padding: 0.5rem 1rem;
+  
+}
+
+.math-physics a:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Back to Home Button   */
+
+.back-home {
+  font-size: 0.95rem;
+  border: 2px solid var(--accent);
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  transition: all 0.3s ease;
+  margin: 1rem 0 0 0;
+  width: fit-content;
+  background: rgba(0, 229, 255, 0.08);
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  .link-back-home{
+    color: whitesmoke;
+    text-decoration: none;
+  }
+  &:hover {
+    background-color: #00e5ff;
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-right: 4.5rem;
+    min-height: 3rem;
+  }
+  .logo .logo-icon{
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin-left: 0.1rem;
+    max-width: calc(100% - 6.5rem);
+    border: #00E5FF 1px solid;
+  }
+  .logo .logo-text {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-left: 0.1rem;
+    max-width: calc(100% - 6.5rem);
+  }
+
+  .logo .mobius-socials {
+    position: absolute;
+    top: 10px;
+    right: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    margin-top: 0;
+    text-align: right;
+    line-height: 1.1;
+  }
+  .logo .icons{
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    margin-right: 5px;
+  }
+
+  .books {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .img1, .img2, .img3, .img4 {
+    width: 42%;
+    height: auto;
+  }
+}
+html {
+  scroll-behavior: smooth;
+}
