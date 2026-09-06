@@ -352,5 +352,6 @@ body {
   }
 }
 html {
+  background: #050810;
   scroll-behavior: smooth;
 }
