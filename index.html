@@ -32,15 +32,22 @@
     <meta property="og:image:height" content="600" />
 
     <link rel="stylesheet" href="style.css" />
+
+    <!-- Google Fonts: preconnect + non-blocking load (page shows immediately, fonts swap in) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
     />
-    <script
-      src="https://kit.fontawesome.com/8c499f8041.js"
-      crossorigin="anonymous"
-      defer
-    ></script>
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     <title>Mobius | موبيوس</title>
   </head>
   <body>
@@ -51,17 +58,50 @@
         <div class="mobius-socials">
           <span class="mobius-socials-label">More about us: </span>
           <div class="mobius-socials-icons">
-            <a href="https://www.instagram.com/mobius.sci/" class="icons"
-              ><i
-                class="fa-brands fa-instagram fa-2xl"
+            <a
+              href="https://www.instagram.com/mobius.sci/"
+              class="icons"
+              aria-label="Instagram"
+              ><svg
+                viewBox="0 0 24 24"
+                width="32"
+                height="32"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
                 style="color: rgb(255, 0, 59)"
-              ></i
+                aria-hidden="true"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle
+                  cx="17.5"
+                  cy="6.5"
+                  r="1"
+                  fill="currentColor"
+                  stroke="none"
+                /></svg
             ></a>
-            <a href="https://t.me/+xdeLhiaLI9FlNzEy" class="icons"
-              ><i
-                class="fa-brands fa-telegram fa-2xl"
+            <a
+              href="https://t.me/+xdeLhiaLI9FlNzEy"
+              class="icons"
+              aria-label="Telegram"
+              ><svg
+                viewBox="0 0 24 24"
+                width="32"
+                height="32"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
                 style="color: rgb(116, 192, 252)"
-              ></i
+                aria-hidden="true"
+              >
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" /></svg
             ></a>
           </div>
         </div>
