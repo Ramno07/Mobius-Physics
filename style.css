@@ -214,8 +214,8 @@ body {
 .footer {
   position: relative;
   z-index: 1000;
-  width: 100vw;
-  margin: 2rem 0 0 calc(50% - 50vw);
+  width: 100%;
+  margin: auto 0 0 0; /* pushes footer to the bottom */
   padding: 0.4rem 1rem;
   box-sizing: border-box;
   border-top: 1px solid rgba(0, 229, 255, 0.25);
@@ -227,10 +227,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #5a6a8a;
-  font-family: "Source Sans 3", sans-serif;
   flex-direction: column;
   gap: 0.35rem;
+  color: #5a6a8a;
+  font-family: "Source Sans 3", sans-serif;
 
   .footer-signal {
     display: flex;
@@ -241,6 +241,7 @@ body {
     font-size: 0.55rem;
     letter-spacing: 0.08em;
   }
+
   .signal-dot {
     width: 0.35rem;
     height: 0.35rem;
