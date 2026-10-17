@@ -12,17 +12,6 @@
         <a href="index.html" class="logo-icon" aria-label="Mobius home"></a>
         <a href="index.html" class="logo-text">Mobius | موبيوس</a>
       </div>
-      <form class="subject-search" role="search" onsubmit="return false">
-        <label class="visually-hidden" for="subject-search-input">
-          Search academic subjects
-        </label>
-        <input
-          id="subject-search-input"
-          type="search"
-          placeholder="Search subjects"
-          autocomplete="off"
-        />
-      </form>
     </header>
     <div class="back-home">
       <a
@@ -46,6 +35,22 @@
         classical mechanics to quantum physics.
       </p>
     </div>
+
+    <form
+      class="subject-search subject-search--below-intro"
+      role="search"
+      onsubmit="return false"
+    >
+      <label class="visually-hidden" for="subject-search-input">
+        Search academic subjects
+      </label>
+      <input
+        id="subject-search-input"
+        type="search"
+        placeholder="Search subjects"
+        autocomplete="off"
+      />
+    </form>
     
     <div class="subjects">
       <p class="search-status" role="status" aria-live="polite" hidden></p>
@@ -184,4 +189,3 @@
     </script>
   </body>
 </html>
-
