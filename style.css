@@ -354,8 +354,8 @@ body::before {
   scroll-margin-top: 1rem;
 }
 
-.subject-link[hidden],
-.subject-section[hidden] {
+.subjects .subject-section .subject-link[hidden],
+.subjects .subject-section[hidden] {
   display: none;
 }
 
