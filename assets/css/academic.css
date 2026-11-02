@@ -1,0 +1,1073 @@
+/* =========================================================
+   Mobius | موبيوس — Academic: subject hubs and lectures
+   Loaded only by the pages tools/build.py writes for them.
+   Uses the tokens of style.css (colours, type, corners, motion).
+   ========================================================= */
+
+/* ---------- the shorter figure on Lectures pages ---------- */
+.banner--compact canvas {
+  height: clamp(170px, 24vw, 230px);
+}
+
+@media (max-width: 560px) {
+  .banner--compact canvas {
+    height: 150px;
+  }
+}
+
+/* ---------- level and approach labels ---------- */
+.lvl {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--lv);
+  font-weight: 600;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.lvl .planet {
+  width: 10px;
+  height: 10px;
+}
+
+.cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px 2px 7px;
+  border-radius: 99px;
+  border: 1px solid var(--line-2);
+  color: var(--dust);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.cat svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+/* the two approaches differ by shape and icon, not by colour alone */
+.cat-academic {
+  background: color-mix(in srgb, var(--star) 7%, transparent);
+  color: var(--star);
+}
+
+.cat-conceptual {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--brass) 55%, transparent);
+  color: var(--brass);
+}
+
+html[dir="rtl"] .cat {
+  padding: 2px 7px 2px 9px;
+}
+
+/* ---------- subject hub: the two ways in ----------
+   Books and Lectures are two large buttons: a filled box with an edge, an icon, what each
+   holds, and an arrow at the end that says it opens. One above the other on a phone,
+   side by side on wider screens. */
+.hub {
+  padding-top: 30px;
+}
+
+.hub-title {
+  margin: 0 0 16px;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.45rem, 3.6vw, 1.9rem);
+}
+
+.ways {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 680px) {
+  .ways {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+.way {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 22px;
+  column-gap: 16px;
+  align-items: center;
+  height: 100%;
+  min-height: 116px;
+  padding: 18px;
+  border: 1px solid var(--line-2);
+  border-radius: 20px;
+  background: var(--panel);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), transform var(--t-press) var(--ease-out);
+}
+
+.way-icon {
+  grid-row: 1 / span 3;
+  align-self: start;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brass) 16%, transparent);
+  color: var(--brass);
+}
+
+.way-icon svg {
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.way-icon svg .fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.way-name,
+.way-desc,
+.way-foot {
+  grid-column: 2;
+}
+
+.way-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.55rem;
+  line-height: 1.15;
+  transition: color var(--t-fast) var(--ease);
+}
+
+.way-desc {
+  margin-top: 4px;
+  color: var(--dust);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.way-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 10px;
+}
+
+.way-meta {
+  color: var(--dust);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.way-meta .n {
+  color: var(--star);
+  font-weight: 600;
+}
+
+.way-levels {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.way-levels .planet {
+  width: 9px;
+  height: 9px;
+}
+
+.way-levels .is-off {
+  opacity: 0.18;
+}
+
+/* the arrow: this box opens a page (it points the other way in Arabic and Kurdish) */
+.way-go {
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  display: grid;
+  place-items: center;
+  color: var(--dust);
+  transition: color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease-out);
+}
+
+.way-go svg {
+  width: 22px;
+  height: 22px;
+}
+
+html[dir="rtl"] .way-go svg {
+  transform: scaleX(-1);
+}
+
+.way:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .way:hover {
+    border-color: color-mix(in srgb, var(--brass) 60%, transparent);
+    background: var(--panel-2);
+  }
+  .way:hover .way-name,
+  .way:hover .way-go {
+    color: var(--brass);
+  }
+}
+
+.way:active {
+  border-color: color-mix(in srgb, var(--brass) 60%, transparent);
+  background: var(--panel-2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .way:active {
+    transform: scale(0.98);
+  }
+}
+
+/* ---------- filters (level pills come from style.css) ---------- */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 20px;
+  margin-top: 22px;
+}
+
+.filters .pills {
+  margin: 0;
+}
+
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+}
+
+.seg-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dust);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.seg-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.seg-btn .n {
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .seg-btn:hover {
+    color: var(--star);
+  }
+}
+
+.seg-btn[aria-pressed="true"] {
+  background: var(--panel-2);
+  color: var(--star);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin: 16px 0 0;
+  color: var(--dust);
+  font-size: 0.86rem;
+}
+
+.legend div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend dd {
+  margin: 0;
+}
+
+/* ---------- lecture courses on a subject page ---------- */
+.lecture-shelves {
+  padding-top: 26px;
+}
+
+.shelf.lecture-shelf {
+  /* style.css hides a shelf without books; these hold courses */
+  display: block;
+  margin-top: 30px;
+}
+
+.shelf.lecture-shelf:first-child {
+  margin-top: 0;
+}
+
+/* courses are listed as entries: a small drawn cover, then the course */
+.courses {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+@media (min-width: 900px) {
+  .courses {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 44px;
+  }
+}
+
+.course-item {
+  border-bottom: 1px solid var(--line);
+}
+
+.course-item[hidden] {
+  display: none;
+}
+
+.course {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  height: 100%;
+  padding: 18px 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (min-width: 700px) {
+  .course {
+    grid-template-columns: 156px minmax(0, 1fr);
+    gap: 20px;
+    padding-block: 22px;
+  }
+}
+
+/* the drawn course cover: like a book cover, it keeps its night colours in light mode */
+.course-cover,
+.player-facade {
+  --cv0: var(--cv, #f0b44a);
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 25% 0%, rgba(255, 255, 255, 0.09), transparent 62%),
+    linear-gradient(162deg, var(--cv-a, #2a2358), var(--cv-b, #0b0a22) 92%);
+  color: #f4efe4;
+}
+
+.course-cover {
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(196, 186, 255, 0.14);
+}
+
+.cv-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cv-ring {
+  fill: none;
+  stroke: var(--cv0);
+  stroke-opacity: 0.3;
+  stroke-width: 0.7;
+}
+
+.cv-ring.is-on {
+  stroke-opacity: 0.8;
+  stroke-width: 1;
+}
+
+.cv-ring.is-out {
+  stroke-opacity: 0.1;
+}
+
+.cv-sun {
+  fill: #f0b44a;
+  opacity: 0.85;
+}
+
+.cv-planet {
+  fill: var(--cv0);
+}
+
+.course-count {
+  position: absolute;
+  inset-inline-start: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px 2px 6px;
+  border-radius: 99px;
+  background: rgba(7, 6, 24, 0.6);
+  font-size: 0.74rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.course-count svg {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+}
+
+.course-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.course-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 12px;
+}
+
+/* the course's length, last in the row */
+.course-len {
+  color: var(--faint);
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.course-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.24rem;
+  line-height: 1.2;
+  transition: color var(--t-fast) var(--ease);
+}
+
+.course-by {
+  margin-top: 4px;
+  color: var(--dust);
+  font-size: 0.88rem;
+}
+
+.course-chan {
+  color: var(--faint);
+}
+
+.course-sum {
+  margin-top: 8px;
+  color: color-mix(in srgb, var(--star) 82%, var(--dust));
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 699px) {
+  .course-sum {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+}
+
+.course:focus-visible .course-title {
+  color: var(--lv);
+}
+
+@media (hover: hover) {
+  .course:hover .course-title {
+    color: var(--lv);
+  }
+}
+
+@media (hover: none) {
+  .course:active .course-title {
+    color: var(--lv);
+  }
+}
+
+/* a press: the cover or the picture gives a little */
+.course-cover {
+  transition: transform var(--t-press) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .course:active .course-cover {
+    transform: scale(0.97);
+  }
+}
+
+.filter-empty,
+.source-note {
+  color: var(--dust);
+}
+
+.filter-empty {
+  margin: 30px 0 0;
+}
+
+.source-note {
+  max-width: 46rem;
+  margin: 34px 0 0;
+  font-size: 0.84rem;
+  color: var(--faint);
+}
+
+/* ---------- one lecture course ---------- */
+.lecture-top {
+  padding-top: 34px;
+}
+
+.lecture-title {
+  margin: 0;
+  max-width: 52rem;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  line-height: 1.08;
+}
+
+.lecture-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 14px 0 0;
+  color: var(--dust);
+  font-size: 0.92rem;
+}
+
+.lecture-by {
+  color: var(--star);
+  font-weight: 500;
+}
+
+.lecture-stat .n {
+  color: var(--star);
+  font-weight: 600;
+}
+
+.viewer {
+  display: grid;
+  gap: 22px;
+  margin-top: 26px;
+}
+
+@media (min-width: 1000px) {
+  .viewer {
+    grid-template-columns: minmax(0, 1.75fr) minmax(300px, 1fr);
+    align-items: start;
+  }
+}
+
+.player {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line-2);
+  background: #070618;
+}
+
+.player iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.player-facade {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: clamp(16px, 3.4vw, 30px);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.facade-play {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: clamp(62px, 9vw, 84px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #f0b44a;
+  color: #17133a;
+  box-shadow: 0 10px 40px -8px rgba(240, 180, 74, 0.55);
+  transform: translate(-50%, -62%);
+  transition: transform var(--t-mid) var(--ease-out), background-color var(--t-fast) var(--ease);
+}
+
+.facade-play svg {
+  width: 44%;
+  height: 44%;
+  fill: currentColor;
+  margin-inline-start: 6%;
+}
+
+.player-facade:focus-visible .facade-play {
+  background: #f6c66c;
+  transform: translate(-50%, -62%) scale(1.06);
+}
+
+@media (hover: hover) {
+  .player-facade:hover .facade-play {
+    background: #f6c66c;
+    transform: translate(-50%, -62%) scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .player-facade:active .facade-play {
+    transform: translate(-50%, -62%) scale(0.96);
+    transition-duration: var(--t-press);
+  }
+}
+
+/* on a phone the title takes two lines, so the button sits higher to leave it room */
+@media (max-width: 560px) {
+  .facade-play {
+    top: 40%;
+  }
+}
+
+/* the drawn orbits fade out under the title, so the words never sit on a bright ring */
+.player-facade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11, 10, 34, 0.92), rgba(11, 10, 34, 0.6) 42%, rgba(11, 10, 34, 0) 72%);
+  pointer-events: none;
+}
+
+.facade-text {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  max-width: 40rem;
+}
+
+.facade-title {
+  font-family: var(--serif);
+  font-size: clamp(1.05rem, 2.4vw, 1.45rem);
+  line-height: 1.2;
+  unicode-bidi: plaintext;
+}
+
+.facade-note {
+  color: rgba(244, 239, 228, 0.8);
+  font-size: 0.84rem;
+}
+
+.now {
+  padding: 16px 2px 0;
+}
+
+.now-count {
+  margin: 0;
+  color: var(--faint);
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.now-title {
+  margin: 4px 0 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.2rem, 2.6vw, 1.55rem);
+  line-height: 1.25;
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+.now-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: transparent;
+  color: var(--star);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), transform var(--t-press) var(--ease-out);
+}
+
+.btn svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    border-color: var(--lv, var(--brass));
+  }
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn-ghost {
+  color: var(--dust);
+}
+
+.now-blocked {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid color-mix(in srgb, var(--lv-hard) 50%, transparent);
+  color: var(--star);
+  font-size: 0.9rem;
+}
+
+.playlist {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+@media (min-width: 1000px) {
+  .playlist {
+    position: sticky;
+    top: 82px;
+    max-height: calc(100vh - 110px);
+  }
+}
+
+.playlist-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.playlist-head h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.playlist-n {
+  color: var(--faint);
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.vlist {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: 520px;
+}
+
+@media (min-width: 1000px) {
+  .vlist {
+    max-height: none;
+  }
+}
+
+.v {
+  display: grid;
+  grid-template-columns: 2.8em minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--r-sm);
+  color: var(--star);
+  text-decoration: none;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.v-n {
+  color: var(--faint);
+  text-align: end;
+  white-space: nowrap;
+}
+
+.v-t {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+.v-d {
+  color: var(--faint);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .v:hover {
+    background: var(--panel-2);
+  }
+}
+
+.v[aria-current="true"] {
+  background: color-mix(in srgb, var(--lv) 14%, var(--panel));
+  box-shadow: inset 3px 0 0 var(--lv);
+}
+
+html[dir="rtl"] .v[aria-current="true"] {
+  box-shadow: inset -3px 0 0 var(--lv);
+}
+
+.v[aria-current="true"] .v-n {
+  color: var(--lv);
+  font-weight: 600;
+}
+
+.v[data-embed="0"] .v-d::after {
+  content: " ↗";
+}
+
+.course-about {
+  max-width: 52rem;
+  margin-top: 46px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+}
+
+.course-about h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.5rem;
+}
+
+.course-about-sum {
+  margin: 10px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.facts {
+  display: grid;
+  gap: 10px;
+  margin: 22px 0 0;
+}
+
+.facts div {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+}
+
+.facts dt {
+  color: var(--faint);
+  font-size: 0.88rem;
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.facts a {
+  color: var(--star);
+  text-decoration: underline;
+  text-decoration-color: var(--line-2);
+  text-underline-offset: 4px;
+}
+
+@media (hover: hover) {
+  .facts a:hover {
+    color: var(--brass);
+    text-decoration-color: var(--brass);
+  }
+}
+
+.facts-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+@media (max-width: 560px) {
+  .facts div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+/* ---------- all lectures ---------- */
+.index-group {
+  margin-top: 34px;
+}
+
+.index-h {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.45rem;
+}
+
+.index-h a {
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .index-h a:hover {
+    color: var(--brass);
+  }
+}
+
+.index-h small {
+  margin-inline-start: auto;
+  color: var(--dust);
+  font-family: var(--sans);
+  font-size: 0.84rem;
+}
+
+.index-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 2px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.index-item {
+  display: grid;
+  grid-template-columns: 6.6rem minmax(0, 1fr);
+  grid-template-areas: "lvl title" "lvl by";
+  column-gap: 12px;
+  padding: 8px 6px;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+}
+
+.index-item .lvl {
+  grid-area: lvl;
+  align-self: start;
+  padding-top: 3px;
+}
+
+.index-t {
+  grid-area: title;
+  font-weight: 500;
+}
+
+.index-by {
+  grid-area: by;
+  color: var(--faint);
+  font-size: 0.84rem;
+}
+
+@media (hover: hover) {
+  .index-item:hover {
+    background: var(--panel-2);
+  }
+}
+
+@media (hover: hover) {
+  .index-item:hover .index-t {
+    color: var(--brass);
+  }
+}
+
+/* ---------- Phones: the filters take one or two lines, not a whole screen ---------- */
+@media (max-width: 640px) {
+  .filters {
+    gap: 10px;
+  }
+  .filters .pills {
+    margin-block: 18px 0;
+  }
+  .seg {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .seg::-webkit-scrollbar {
+    display: none;
+  }
+  .seg-btn {
+    flex: none;
+  }
+  /* the two badges carry their own words and icons; the key below them is for wide screens */
+  .legend {
+    display: none;
+  }
+  /* after choosing a video, the player is brought back into view under the header
+     (which stays at the top: two rows on a phone) */
+  .player {
+    scroll-margin-top: 112px;
+  }
+}
