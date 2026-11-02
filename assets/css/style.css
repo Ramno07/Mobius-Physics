@@ -1,0 +1,3455 @@
+/* =========================================================
+   Mobius | موبيوس
+   A night-sky library: an interactive star chart on the home
+   page, one live figure per subject, books on level shelves.
+   ========================================================= */
+
+/* ---------- Fonts ----------
+   Served from this site (fonts/), not from Google, so a visit sends nobody
+   else the visitor's address. Same font files Google Fonts uses (SIL Open Font
+   License, see fonts/OFL.txt), cut down to the letters the site needs: the two
+   Arabic-script fonts keep the whole Arabic block (Arabic and Kurdish letters, with
+   all their joining forms), not the extended blocks for other languages.
+   A browser only downloads a file when the page uses one of its letters. */
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("../fonts/newsreader.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("../fonts/newsreader-extra.woff2") format("woff2");
+  unicode-range:
+    U+0100-0130, U+0132-0151, U+0154-017F, U+0218-021B, U+0300-0303,
+    U+0305-0307, U+2070-2073, U+2075-209F, U+2100-2121, U+2123-214F, U+2190,
+    U+2192, U+2194-2199;
+}
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/newsreader-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("../fonts/onest.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Readex Pro";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/readex-pro.woff2") format("woff2");
+  unicode-range:
+    U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
+}
+@font-face {
+  font-family: "Noto Sans Arabic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("../fonts/noto-sans-arabic.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+200C-200F, U+2010-2011, U+204F, U+25CC, U+2E41;
+}
+@font-face {
+  font-family: "Noto Naskh Arabic";
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url("../fonts/noto-naskh-arabic.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+200C-200F, U+2010-2011, U+204F, U+25CC, U+2E41;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* night sky */
+  --space-0: #070618; /* deepest sky */
+  --space-1: #100d2c; /* indigo, top of the page */
+  --panel: #131034; /* figure panels */
+  --panel-2: #1a1642; /* panel on hover */
+  --line: rgba(196, 186, 255, 0.12);
+  --line-2: rgba(196, 186, 255, 0.22);
+
+  /* light */
+  --star: #f4efe4; /* text */
+  --dust: #a49fc4; /* secondary text */
+  --faint: #8580a8; /* captions (4.5:1 or better on panels) */
+  --brass: #f0b44a; /* accent */
+  --rose: #ff7a93;
+  --ice: #8fd3ff;
+
+  /* five levels, inner orbit to outer */
+  --lv-beginner: #6fe3b4;
+  --lv-easy: #77c6ff;
+  --lv-medium: #f0b44a;
+  --lv-hard: #ff7a6b;
+  --lv-extreme: #c39bff;
+
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans: "Onest", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --arabic: "Readex Pro", "Onest", system-ui, sans-serif;
+
+  --max: 1180px;
+
+  /* the page colour itself (the hero keeps its own night colours, so it needs this to meet the page) */
+  --page-bg: #070618;
+
+  /* corners: big panels, cards, small controls */
+  --r-lg: 16px;
+  --r-md: 12px;
+  --r-sm: 8px;
+
+  /* motion: one easing for things arriving, one for small state changes */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --t-press: 0.15s;
+  --t-fast: 0.16s;
+  --t-mid: 0.28s;
+  --t-slow: 0.5s;
+}
+
+/* ---------- the page's colours ----------
+   <html> keeps the night-sky colours above: the moving figures and the hero read them.
+   The page itself (<body>) is calmer, to be easy on the eyes for long reading: a dusk
+   blue rather than black in the dark theme, a soft grey paper rather than white in the
+   light one, and muted accents rather than glowing ones. */
+body {
+  --space-0: #1e2335; /* page */
+  --space-1: #262c42; /* top of the page */
+  --panel: #272e45; /* boxes and buttons */
+  --panel-2: #30385a; /* a box under the pointer */
+  --line: rgba(206, 213, 240, 0.13);
+  --line-2: rgba(206, 213, 240, 0.24);
+  --star: #e9e6df; /* text */
+  --dust: #b3b8cc; /* secondary text */
+  --faint: #a0a6bd; /* captions */
+  --brass: #ddb06b; /* accent */
+  --rose: #ea909f;
+  --ice: #9cc7e8;
+  --lv-beginner: #82cdae;
+  --lv-easy: #8fbde6;
+  --lv-medium: #ddb06b;
+  --lv-hard: #e8998d;
+  --lv-extreme: #bba9ec;
+  --on-accent: #1b1e2b; /* text on an accent-filled box */
+  --page-bg: #1e2335;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: #1e2335;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* paragraphs keep a lone word off their last line */
+p {
+  text-wrap: pretty;
+}
+
+/* on touch screens a tap shows the site's own pressed and hover styles, not the browser's
+   grey flash, and a quick second tap on a button is not taken as a zoom */
+a,
+button,
+input,
+select,
+label,
+summary,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--space-1) 0, var(--space-0) 560px)
+    var(--space-0);
+  color: var(--star);
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--brass);
+  color: var(--space-0);
+}
+
+[lang="ar"] {
+  font-family: var(--arabic);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.wrap {
+  width: min(100% - 32px, var(--max));
+  margin-inline: auto;
+}
+
+main {
+  flex: 1;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  font-weight: 500;
+}
+
+/* ---------- Header ----------
+   The header stays at the top of the screen while the page scrolls. It is part of the
+   page's flow (sticky, not laid over it), so when a page opens, the page starts right
+   under it and nothing is hidden; and it is fully opaque, so nothing shows through it.
+   On the home page it floats over the sky, and turns solid once the page is scrolled.
+   Solid, it is a soft gold with navy writing (in both themes), so it stands apart from
+   the page; its own colours (--hd-*) are used only by the header's own parts. */
+.site-header {
+  --hd-bg: linear-gradient(180deg, #dbb873, #cfa961);
+  --hd-ink: #1c1f2e; /* the name, the open section, the buttons (7.4:1 or more) */
+  --hd-ink-2: #3d3a33; /* the other section, quieter (5.1:1 or more) */
+  --hd-line: rgba(28, 31, 46, 0.24);
+  --hd-button: rgba(255, 255, 255, 0.24);
+  --hd-button-hover: rgba(255, 255, 255, 0.42);
+  --hd-sun: #1c1f2e;
+  --hd-ring: #1c1f2e;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #d5b06a var(--hd-bg);
+  border-bottom: 1px solid rgba(28, 31, 46, 0.18);
+  color: var(--hd-ink);
+}
+
+/* over the home page's sky: no bar, the sky's own colours */
+.page-home .site-header {
+  position: fixed;
+  inset: 0 0 auto;
+  border-bottom-color: transparent;
+}
+
+.page-home .site-header:not(.is-solid) {
+  --hd-ink: var(--star);
+  --hd-ink-2: var(--dust);
+  --hd-line: var(--line-2);
+  --hd-button: color-mix(in srgb, var(--panel) 55%, transparent);
+  --hd-button-hover: color-mix(in srgb, var(--panel) 80%, transparent);
+  --hd-sun: #f0b44a;
+  --hd-ring: #f4efe4;
+  background: transparent;
+}
+
+.page-home .site-header.is-solid {
+  border-bottom-color: rgba(28, 31, 46, 0.18);
+}
+
+/* keyboard focus inside the bar: a navy ring on the gold */
+.site-header .header-inner :focus-visible {
+  outline-color: var(--hd-ink);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 18px;
+  min-height: 62px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand svg {
+  width: 30px;
+  height: 30px;
+  flex: none;
+}
+
+.brand svg circle {
+  fill: var(--hd-sun);
+}
+
+.brand svg ellipse {
+  stroke: var(--hd-ring);
+}
+
+.brand-name {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.3rem;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.brand-ar {
+  color: var(--hd-ink-2);
+  font-size: 0.92rem;
+}
+
+.nav {
+  display: flex;
+  gap: 22px;
+  margin-inline-start: auto;
+}
+
+.nav a {
+  position: relative;
+  padding: 8px 0;
+  color: var(--hd-ink-2);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .nav a:hover {
+    color: var(--hd-ink);
+  }
+}
+
+.nav a[aria-current="page"] {
+  color: var(--hd-ink);
+  font-weight: 600;
+}
+
+.nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--hd-ink);
+}
+
+.page-home .site-header:not(.is-solid) .nav a[aria-current="page"]::after {
+  background: var(--brass);
+}
+
+@media (max-width: 440px) {
+  .brand-ar {
+    display: none;
+  }
+  .nav {
+    gap: 16px;
+  }
+  .nav a {
+    font-size: 0.9rem;
+  }
+}
+
+/* ---------- Home: hero ---------- */
+.hero {
+  position: relative;
+  min-height: clamp(540px, 84vh, 800px);
+  min-height: clamp(
+    540px,
+    84svh,
+    800px
+  ); /* phones: ignore the browser bar so the hero does not jump */
+  display: grid;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-sky {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  touch-action: pan-y;
+}
+
+/* keeps the words readable over the sky */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 55% 50% at 20% 52%,
+    rgba(7, 6, 24, 0.7),
+    transparent 72%
+  );
+}
+
+html[dir="rtl"] .hero::after {
+  background: radial-gradient(
+    ellipse 55% 50% at 80% 52%,
+    rgba(7, 6, 24, 0.7),
+    transparent 72%
+  );
+}
+
+/* where the sky ends: the curved edge of a planet, lit by a thin atmosphere.
+   The page below is the planet's surface, so it takes the page colour. */
+.horizon {
+  --rise: clamp(22px, 4.4vw, 62px);
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: -1;
+  width: 320vw;
+  height: 150vw;
+  border-radius: 50%;
+  transform: translate(-50%, calc(100% - var(--rise)));
+  will-change: transform; /* painted once, then only composited */
+  background: var(--page-bg);
+  box-shadow:
+    0 -1px 0 rgba(255, 236, 214, 0.42),
+    0 -6px 22px rgba(205, 184, 255, 0.26),
+    0 -30px 80px rgba(140, 112, 255, 0.2);
+  pointer-events: none;
+}
+
+/* the sky brightens a little just above the horizon */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 42%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(120, 92, 220, 0.16) 80%,
+    rgba(255, 196, 160, 0.1)
+  );
+}
+
+.hero-copy {
+  padding-block: 112px 112px;
+  pointer-events: none;
+}
+
+/* the page opens on one short moment: the name, then the line under it */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-copy > * {
+    animation: hero-in 0.9s var(--ease-out) both;
+  }
+  .hero-copy > :nth-child(2) {
+    animation-delay: 0.12s;
+  }
+  .hero-copy > :nth-child(3) {
+    animation-delay: 0.24s;
+  }
+  .hero-sky {
+    animation: sky-in 1.4s ease-out both;
+  }
+}
+
+/* starts at 1% rather than 0: invisible all the same, but the browser then counts the
+   title as painted from the first frame (a fade from 0 would make it count as late) */
+@keyframes hero-in {
+  from {
+    opacity: 0.01;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+}
+
+@keyframes sky-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.wordmark {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(3.4rem, 12.5vw, 8rem);
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  color: var(--star);
+}
+
+.hero-ar {
+  margin: 10px 0 0;
+  font-weight: 500;
+  font-size: clamp(1.25rem, 3.8vw, 1.7rem);
+  color: var(--brass);
+}
+
+.hero-line {
+  margin: 22px 0 0;
+  max-width: 25rem;
+  font-size: clamp(1.08rem, 2.6vw, 1.22rem);
+  line-height: 1.5;
+  color: var(--star);
+}
+
+/* ---------- Home: the two ways in ----------
+   Each door is a plate: its live figure fills it and the name is set on the figure's own
+   night sky. Academic holds more, so on a wide screen it takes the wider plate. */
+.doors {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+@media (min-width: 760px) {
+  .doors {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 20px;
+  }
+}
+
+.door {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 24px;
+  background: radial-gradient(ellipse at 50% 35%, #1a1642, #100d2c 75%);
+  color: var(--star);
+  text-decoration: none;
+  isolation: isolate;
+  transition: transform var(--t-press) var(--ease-out);
+}
+
+/* the plate's edge, drawn over the figure */
+.door::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(196, 186, 255, 0.14);
+  pointer-events: none;
+  transition: box-shadow var(--t-fast) var(--ease);
+}
+
+.door canvas {
+  display: block;
+  width: 100%;
+  height: clamp(250px, 70vw, 300px);
+}
+
+@media (min-width: 760px) {
+  .door canvas {
+    height: 360px;
+  }
+}
+
+.door-text {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 64px 20px 18px;
+  background: linear-gradient(
+    to top,
+    rgba(7, 6, 24, 0.94),
+    rgba(7, 6, 24, 0.72) 48%,
+    rgba(7, 6, 24, 0)
+  );
+  pointer-events: none;
+}
+
+@media (min-width: 760px) {
+  .door-text {
+    padding: 80px 28px 24px;
+  }
+}
+
+.door h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.9rem, 6vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  transition: color var(--t-fast) var(--ease);
+}
+
+.door p {
+  margin: 4px 0 0;
+  max-width: 30ch;
+  color: var(--dust);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+@media (hover: hover) {
+  .door:hover h2 {
+    color: var(--brass);
+  }
+  .door:hover::after {
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--brass) 55%, transparent);
+  }
+}
+
+.door:focus-visible h2 {
+  color: var(--brass);
+}
+
+/* ---------- Home: the five orbits ---------- */
+.orbits {
+  display: grid;
+  gap: 24px;
+  align-items: center;
+  padding-block: 96px 104px;
+}
+
+@media (min-width: 860px) {
+  .orbits {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 64px;
+  }
+}
+
+.orbit-art {
+  position: relative;
+  width: min(100%, 500px);
+  aspect-ratio: 1;
+  justify-self: center;
+  /* the turning layers are squares; at an angle their corners poke out, so keep them inside */
+  overflow: hidden;
+}
+
+.orbit-art svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* each ring carries a faint trace of its level's colour */
+.orbit-ring {
+  fill: none;
+  stroke: var(--line-2);
+  stroke-width: 1;
+  transition:
+    stroke var(--t-mid) var(--ease),
+    stroke-width var(--t-mid) var(--ease),
+    opacity var(--t-mid) var(--ease);
+}
+
+/* the planets (positions are in the drawing's 600-unit space, set on each .orbit) */
+.orbit {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--a));
+  pointer-events: none;
+}
+
+.orbit-turn {
+  position: absolute;
+  inset: 0;
+  animation: spin var(--d) linear infinite;
+  will-change: transform;
+}
+
+.orbiter {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + var(--r) / 6 * 1%);
+  width: calc(var(--s) / 6 * 1%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle at 35% 35%,
+    #fff 0 10%,
+    var(--cv) 46%,
+    var(--cv) 100%
+  );
+  transition: transform var(--t-mid) var(--ease-out);
+}
+
+/* richer shading where the browser can mix colours (older ones keep the plain look above) */
+@supports (color: color-mix(in srgb, red, blue)) {
+  .orbit-ring {
+    stroke: color-mix(in srgb, var(--lv) 34%, var(--line-2));
+  }
+  .orbiter {
+    background: radial-gradient(
+      circle at 35% 35%,
+      #fff 0 10%,
+      var(--cv) 46%,
+      color-mix(in srgb, var(--cv) 62%, #05040f) 100%
+    );
+    box-shadow: 0 0 14px 1px color-mix(in srgb, var(--cv) 45%, transparent);
+  }
+}
+
+/* pointing at a level in the list lights up its orbit */
+@media (hover: hover) {
+  .orbits:has(.level-list li:hover) .orbit-ring {
+    opacity: 0.45;
+  }
+  .orbits:has(.level-list .lv-beginner:hover) .orbit-ring.lv-beginner,
+  .orbits:has(.level-list .lv-easy:hover) .orbit-ring.lv-easy,
+  .orbits:has(.level-list .lv-medium:hover) .orbit-ring.lv-medium,
+  .orbits:has(.level-list .lv-hard:hover) .orbit-ring.lv-hard,
+  .orbits:has(.level-list .lv-extreme:hover) .orbit-ring.lv-extreme {
+    opacity: 1;
+    stroke: var(--lv);
+    stroke-width: 2;
+  }
+  .orbits:has(.level-list .lv-beginner:hover) .orbit.lv-beginner .orbiter,
+  .orbits:has(.level-list .lv-easy:hover) .orbit.lv-easy .orbiter,
+  .orbits:has(.level-list .lv-medium:hover) .orbit.lv-medium .orbiter,
+  .orbits:has(.level-list .lv-hard:hover) .orbit.lv-hard .orbiter,
+  .orbits:has(.level-list .lv-extreme:hover) .orbit.lv-extreme .orbiter {
+    transform: translate(-50%, -50%) scale(1.45);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.section-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  line-height: 1.1;
+}
+
+.section-sub {
+  margin: 10px 0 0;
+  color: var(--dust);
+  font-size: 1.05rem;
+  max-width: 30rem;
+}
+
+.level-list {
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.level-list li {
+  display: grid;
+  grid-template-columns: 16px auto 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.level-list li:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.planet {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #fff 0 8%,
+    var(--lv) 42%,
+    color-mix(in srgb, var(--lv) 55%, #000) 100%
+  );
+}
+
+.level-list strong {
+  font-weight: 600;
+  color: var(--lv);
+}
+
+.level-list span:last-child {
+  color: var(--dust);
+  text-align: right;
+}
+
+.lv-beginner {
+  --lv: var(--lv-beginner);
+}
+.lv-easy {
+  --lv: var(--lv-easy);
+}
+.lv-medium {
+  --lv: var(--lv-medium);
+}
+.lv-hard {
+  --lv: var(--lv-hard);
+}
+.lv-extreme {
+  --lv: var(--lv-extreme);
+}
+
+/* ---------- Subject index pages ---------- */
+.page-top {
+  padding-block: 40px 4px;
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 0.875rem;
+  color: var(--faint);
+}
+
+.crumbs a {
+  color: var(--dust);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .crumbs a:hover {
+    color: var(--brass);
+  }
+}
+
+.crumbs [aria-current] {
+  color: var(--star);
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  line-height: 1.02;
+}
+
+.page-sub {
+  margin: 12px 0 0;
+  color: var(--dust);
+  font-size: 1.08rem;
+}
+
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-top: 20px;
+}
+
+.jump a {
+  color: var(--star);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--line-2);
+  text-underline-offset: 5px;
+}
+
+@media (hover: hover) {
+  .jump a:hover {
+    color: var(--brass);
+    text-decoration-color: var(--brass);
+  }
+}
+
+.field {
+  padding-block: 40px 8px;
+  scroll-margin-top: 104px; /* a jump here lands just under the header */
+}
+
+.field-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.6rem, 4.4vw, 2.1rem);
+}
+
+.field-title small {
+  margin-left: auto;
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  color: var(--dust);
+}
+
+/* Subjects are plates: each one's live figure, its name under it, and what it holds.
+   Two to a row on a phone, three or four on wider screens. The subject to start with
+   (the first of each field, marked "Start here") takes a wider plate. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tiles > .tile-start {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 760px) {
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 34px 20px;
+  }
+  .tiles > .tile-start {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1100px) {
+  .tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.tile canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at 50% 40%, #1a1642, #100d2c 75%);
+  box-shadow: inset 0 0 0 1px rgba(196, 186, 255, 0.12);
+  transition:
+    transform var(--t-press) var(--ease-out),
+    box-shadow var(--t-fast) var(--ease);
+}
+
+.tile-start canvas {
+  aspect-ratio: 16 / 10;
+  border-radius: 24px;
+}
+
+@media (min-width: 760px) {
+  .tile-start canvas {
+    flex: 1;
+    min-height: 200px;
+    aspect-ratio: auto;
+  }
+}
+
+.tile-text {
+  display: block;
+  padding: 12px 2px 0;
+}
+
+.tile-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 4px;
+  color: var(--lv-beginner);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.tile-tag .planet {
+  width: 8px;
+  height: 8px;
+}
+
+.tile-name {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.08rem;
+  line-height: 1.25;
+  text-wrap: balance;
+  transition: color var(--t-fast) var(--ease);
+}
+
+.tile-start .tile-name {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 760px) {
+  .tile-name {
+    font-size: 1.2rem;
+  }
+  .tile-start .tile-name {
+    font-size: 1.9rem;
+  }
+}
+
+.tile-cap {
+  display: block;
+  margin-top: 4px;
+  color: var(--dust);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+@media (max-width: 759px) {
+  .tile-cap {
+    display: none;
+  }
+}
+
+@media (hover: hover) {
+  .tile:hover .tile-name {
+    color: var(--brass);
+  }
+  .tile:hover canvas {
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--brass) 55%, transparent);
+  }
+}
+
+.tile:focus-visible .tile-name {
+  color: var(--brass);
+}
+
+/* A pressed button gives a little at once (0.96), so a tap is felt before the page answers.
+   A disabled one stays still. Under reduced motion nothing moves. */
+@media (prefers-reduced-motion: no-preference) {
+  .pill:not(:disabled):active,
+  .tool:not(:disabled):active,
+  .btn:not(:disabled):active {
+    transform: scale(0.96);
+  }
+}
+
+/* a press answers at once: the plate gives a little under the finger or the mouse */
+@media (prefers-reduced-motion: no-preference) {
+  .tile:active canvas,
+  .door:active,
+  .book:active .cover {
+    transform: scale(0.97);
+  }
+}
+
+/* ---------- Subject page ----------
+   The subject's name, the way back to it and its equation sit above its moving figure, in
+   the page's own colours; nothing is written on the figure. The small button that says
+   what a tap on the figure does sits just under it. */
+.subject-head {
+  padding-top: 22px;
+}
+
+.subject-head .crumbs {
+  margin-bottom: 6px;
+}
+
+.subject-head h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+}
+
+/* the subject's equation, set like a figure caption */
+.figure-cap {
+  margin: 6px 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--dust);
+}
+
+.figure-cap sub {
+  font-size: 0.7em;
+}
+
+.banner {
+  position: relative;
+  margin-top: 16px;
+}
+
+/* the figure is its own night-coloured box; its edge is an outline, drawn over the picture */
+.banner canvas {
+  display: block;
+  width: 100%;
+  height: clamp(240px, 40vw, 380px);
+  border-radius: 20px;
+  outline: 1px solid var(--line-2);
+  outline-offset: -1px;
+  background: radial-gradient(ellipse at 50% 40%, #1a1642, #100d2c 75%);
+  touch-action: pan-y;
+}
+
+/* room under a figure for its button (tools/build.py marks the figures that have one) */
+.banner[data-hint] {
+  padding-bottom: 46px;
+}
+
+/* the figure answers a tap (scenes.js adds that, and the button under it) */
+.banner.is-playable canvas {
+  cursor: pointer;
+}
+
+.banner-hint {
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px 7px 11px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--star);
+  font: 500 0.85rem/1.25 var(--sans);
+  cursor: pointer;
+  transition:
+    border-color var(--t-fast) var(--ease),
+    background-color var(--t-fast) var(--ease),
+    transform var(--t-press) var(--ease-out);
+}
+
+.banner-hint svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--brass);
+}
+
+@media (hover: hover) {
+  .banner-hint:hover {
+    border-color: color-mix(in srgb, var(--brass) 60%, transparent);
+    background: var(--panel-2);
+  }
+}
+
+.banner-hint:active {
+  background: var(--panel-2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .banner-hint:active {
+    transform: scale(0.96);
+  }
+}
+
+.banner-hint:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+html[dir="rtl"] .banner-hint {
+  padding: 7px 11px 7px 14px;
+}
+
+@media (max-width: 560px) {
+  .subject-head {
+    padding-top: 16px;
+  }
+  .banner {
+    margin-top: 12px;
+  }
+  .banner canvas {
+    height: 210px;
+    border-radius: 16px;
+  }
+  .figure-cap {
+    font-size: 0.95rem;
+  }
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 26px 0 6px;
+}
+
+.pill {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: transparent;
+  color: var(--star);
+  font: inherit;
+  font-weight: 500;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform var(--t-press) var(--ease-out);
+}
+
+.pill .n {
+  color: var(--dust);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .pill:hover {
+    border-color: var(--lv, var(--brass));
+  }
+}
+
+.pill[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--lv, var(--brass)) 16%, transparent);
+  border-color: var(--lv, var(--brass));
+}
+
+.pill-all .planet {
+  --lv: var(--brass);
+}
+
+/* shelves sit side by side, so the levels read left to right like a path */
+.shelves {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 44px 40px;
+  padding-top: 30px;
+}
+
+.shelf {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.shelf:not(:has(.book)) {
+  display: none;
+}
+
+.shelf-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--lv);
+}
+
+.shelf-head h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.45rem;
+  line-height: 1.1;
+  color: var(--star);
+}
+
+.books {
+  --book-w: 160px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 22px;
+}
+
+@media (max-width: 560px) {
+  .shelves {
+    gap: 34px 16px;
+  }
+  .books {
+    --book-w: calc((100vw - 48px) / 2);
+    gap: 22px 16px;
+  }
+}
+
+.book {
+  display: flex;
+  flex-direction: column;
+  width: var(--book-w);
+  max-width: 100%;
+  min-width: 0;
+  text-decoration: none;
+  perspective: 800px;
+}
+
+.cover {
+  --rx: 0deg;
+  --ry: 0deg;
+  --gx: 50%;
+  --gy: 30%;
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--panel-2);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 14px 26px -16px rgba(0, 0, 0, 0.9);
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition:
+    transform 0.18s ease-out,
+    box-shadow 0.2s ease;
+}
+
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* a faint sheen that follows the pointer */
+.cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--gx) var(--gy),
+    rgba(255, 255, 255, 0.18),
+    transparent 55%
+  );
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.book:focus-visible .cover {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 22px 34px -18px rgba(0, 0, 0, 0.95);
+}
+
+@media (hover: hover) {
+  .book:hover .cover {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.14),
+      0 22px 34px -18px rgba(0, 0, 0, 0.95);
+  }
+}
+
+@media (hover: hover) {
+  .book:hover .cover::after {
+    opacity: 1;
+  }
+}
+
+/* ---------- drawn covers ----------
+   Every book gets a cover drawn in its level's colours (script.js makes it):
+   title, author, and the level's orbits, one ring for Beginner up to five for
+   Extreme, as on the home page. A real cover image sits on top of it and
+   fades in once loaded; with no image, the drawn cover is what you see.
+   Covers are objects, so they keep the same colours in light and dark mode. */
+/* --cv: the level's light; --cv-a / --cv-b: the cover cloth, top and bottom */
+.lv-beginner {
+  --cv: #6fe3b4;
+  --cv-a: #134540;
+  --cv-b: #07191c;
+}
+.lv-easy {
+  --cv: #77c6ff;
+  --cv-a: #1b3a72;
+  --cv-b: #0a1332;
+}
+.lv-medium {
+  --cv: #f0b44a;
+  --cv-a: #5a3a10;
+  --cv-b: #1f1308;
+}
+.lv-hard {
+  --cv: #ff7a6b;
+  --cv-a: #5e1d2a;
+  --cv-b: #200a12;
+}
+.lv-extreme {
+  --cv: #c39bff;
+  --cv-a: #3c2470;
+  --cv-b: #150b2c;
+}
+
+.cover,
+.bp-cover {
+  container-type: inline-size;
+}
+
+.cover img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.cover::after {
+  z-index: 2;
+}
+
+html.cover-fx .cover img {
+  opacity: 0;
+  transition: opacity var(--t-slow) var(--ease);
+}
+
+html.cover-fx .cover.is-loaded img {
+  opacity: 1;
+}
+
+.cover.is-blank img {
+  display: none;
+}
+
+.cover-blank {
+  --cv0: var(--cv, #f0b44a);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 16px 0 20px;
+  padding: 13cqw 11cqw 0 13cqw;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      120% 70% at 30% 0%,
+      rgba(255, 255, 255, 0.09),
+      transparent 62%
+    ),
+    linear-gradient(
+      var(--cb-angle, 168deg),
+      var(--cv-a, #2a2358),
+      var(--cv-b, #0b0a22) 92%
+    );
+  color: #f4efe4;
+  text-align: left;
+  font-family: var(--serif);
+}
+
+/* the spine and a pressed frame, so it reads as a bound book */
+.cover-blank::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 9px;
+  width: 5.5cqw;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.34),
+    rgba(255, 255, 255, 0.07) 72%,
+    rgba(0, 0, 0, 0.12)
+  );
+}
+
+.cover-blank::after {
+  content: "";
+  position: absolute;
+  inset: 8px 8px 8px 13px;
+  inset: 5cqw 5cqw 5cqw 8.5cqw;
+  border: 1px solid rgba(244, 239, 228, 0.1);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.cb-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cb-ring {
+  fill: none;
+  stroke: var(--cv0);
+  stroke-opacity: 0.3;
+  stroke-width: 0.55;
+}
+
+.cb-ring.is-on {
+  stroke-opacity: 0.75;
+  stroke-width: 0.8;
+}
+
+.cb-ring.is-out {
+  stroke-opacity: 0.1;
+}
+
+.cb-sun {
+  fill: #f0b44a;
+  opacity: 0.85;
+}
+
+.cb-planet {
+  fill: var(--cv0);
+}
+
+.cb-shine {
+  fill: #fff;
+  opacity: 0.7;
+}
+
+.cb-title,
+.cb-sub,
+.cb-kind,
+.cb-author {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.cb-title {
+  font-weight: 500;
+  font-size: 1rem;
+  font-size: 11cqw;
+  line-height: 1.08;
+  letter-spacing: -0.005em;
+}
+
+.cover-blank[data-len="m"] .cb-title {
+  font-size: 9.6cqw;
+}
+.cover-blank[data-len="l"] .cb-title {
+  font-size: 8.4cqw;
+}
+
+.cb-sub,
+.cb-kind {
+  margin-top: 5px;
+  margin-top: 3cqw;
+  font-style: italic;
+  font-size: 0.8rem;
+  font-size: 7.4cqw;
+  line-height: 1.15;
+  color: rgba(244, 239, 228, 0.78);
+}
+
+.cb-rule {
+  position: relative;
+  width: 22px;
+  width: 14cqw;
+  height: 1px;
+  margin: 11px 0 8px;
+  margin: 7cqw 0 5cqw;
+  background: var(--cv0);
+  opacity: 0.9;
+}
+
+.cb-author {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 0.7rem;
+  font-size: 6.4cqw;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: rgba(244, 239, 228, 0.7);
+}
+
+.book-title {
+  margin-top: 12px;
+  font-weight: 600;
+  font-size: 0.93rem;
+  line-height: 1.3;
+}
+
+@media (hover: hover) {
+  .book:hover .book-title {
+    text-decoration: underline;
+    text-decoration-color: var(--lv, var(--brass));
+    text-underline-offset: 3px;
+  }
+}
+
+.book-author {
+  margin-top: 2px;
+  color: var(--dust);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.book-note {
+  margin-top: 6px;
+  align-self: flex-start;
+  padding: 1px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--line-2);
+  color: var(--dust);
+  font-size: 0.75rem;
+}
+
+.page-end {
+  height: 96px;
+}
+
+/* the page-not-found words sit just under its figure */
+.lost-text {
+  padding-top: 18px;
+}
+
+/* ---------- Star ratings (rating.js) ----------
+   In a book's panel and on a course's page: a label, five stars to tap, and the average. */
+.rate {
+  margin-top: 16px;
+}
+
+.rate-label {
+  margin: 0 0 4px;
+  color: var(--dust);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.rate-stars {
+  display: flex;
+  gap: 2px;
+  margin-inline-start: -6px;
+}
+
+.rate-star {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--faint);
+  cursor: pointer;
+  transition:
+    color var(--t-fast) var(--ease),
+    transform var(--t-press) var(--ease-out);
+}
+
+.rate-star svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.rate-star.is-on {
+  color: var(--brass);
+}
+
+.rate-star.is-on svg {
+  fill: currentColor;
+}
+
+.rate-star:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rate-star:active {
+    transform: scale(0.88);
+  }
+}
+
+.rate-sum,
+.rate-note {
+  margin: 2px 0 0;
+  color: var(--dust);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.rate-note:empty {
+  display: none;
+}
+
+.rate-note {
+  color: var(--lv-beginner);
+}
+
+/* The stars arrive a moment after the page (rating.js), into room kept for them, so
+   nothing below moves: a label, the stars and the average take 93 px (99 px in Arabic and
+   Kurdish, whose lines are taller). */
+.lecture-top .rate {
+  min-height: 94px;
+}
+
+html[dir="rtl"] .lecture-top .rate {
+  min-height: 100px;
+}
+
+/* in a book's panel: a quiet box between the buttons and the text about the book */
+.bp-rate,
+.bp-rate.rate {
+  min-height: 122px;
+  margin: 18px 0 0;
+  padding: 12px 16px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+html[dir="rtl"] .bp-rate {
+  min-height: 128px;
+}
+
+.bp-rate .rate-label {
+  margin-top: 0;
+}
+
+/* ---------- Feedback page ----------
+   A topic, a message and an optional name; the big button opens the visitor's email app
+   with it all written in (feedback.js). */
+.feedback {
+  display: grid;
+  gap: 8px;
+  max-width: 40rem;
+  margin-top: 26px;
+}
+
+.fb-topics {
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+}
+
+.fb-topics legend,
+.fb-label {
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.fb-label {
+  margin-top: 10px;
+}
+
+.fb-optional {
+  color: var(--faint);
+  font-weight: 400;
+}
+
+.fb-topic-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fb-topic {
+  position: relative;
+}
+
+.fb-topic input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.fb-topic span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 6px 15px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--star);
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition:
+    background-color var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease);
+}
+
+.fb-topic input:checked + span {
+  border-color: var(--brass);
+  background: var(--brass);
+  color: var(--on-accent);
+}
+
+.fb-topic input:focus-visible + span {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+.feedback textarea,
+.feedback input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--star);
+  font: inherit;
+  font-size: 1rem; /* 16px: phones do not zoom in on it */
+  line-height: 1.5;
+}
+
+.feedback textarea {
+  min-height: 170px;
+  resize: vertical;
+}
+
+.feedback textarea:focus-visible,
+.feedback input[type="text"]:focus-visible {
+  border-color: var(--brass);
+  outline: 2px solid color-mix(in srgb, var(--brass) 45%, transparent);
+  outline-offset: 0;
+}
+
+.fb-error {
+  margin: 0;
+  color: var(--rose);
+  font-size: 0.92rem;
+}
+
+.fb-send {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  margin-top: 16px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--brass);
+  color: var(--on-accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform var(--t-press) var(--ease-out),
+    filter var(--t-fast) var(--ease);
+}
+
+.fb-send svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (hover: hover) {
+  .fb-send:hover {
+    filter: brightness(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fb-send:active {
+    transform: scale(0.96);
+  }
+}
+
+.fb-how {
+  margin: 6px 0 0;
+  color: var(--dust);
+  font-size: 0.92rem;
+}
+
+.fb-mail {
+  color: var(--star);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+.fb-copy-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 2px 0 0;
+}
+
+.fb-copy {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--star);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.fb-copied {
+  color: var(--lv-beginner);
+  font-size: 0.9rem;
+}
+
+/* ---------- Privacy and terms pages ----------
+   Each page holds an English, an Arabic and a Kurdish text; only the one for the
+   chosen language is shown. */
+.legal {
+  padding-top: 18px;
+}
+
+.legal-text {
+  max-width: 46rem;
+}
+
+.legal-text[data-for="ar"],
+.legal-text[data-for="ku"] {
+  display: none;
+}
+
+html[data-lang="ar"] .legal-text[data-for="en"],
+html[data-lang="ku"] .legal-text[data-for="en"] {
+  display: none;
+}
+
+html[data-lang="ar"] .legal-text[data-for="ar"],
+html[data-lang="ku"] .legal-text[data-for="ku"] {
+  display: block;
+}
+
+.legal-lead {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: var(--star);
+}
+
+.legal h2 {
+  margin: 36px 0 8px;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.45rem;
+  line-height: 1.25;
+}
+
+.legal p,
+.legal li {
+  margin: 0;
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--star) 88%, var(--dust));
+}
+
+.legal ul {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding-inline-start: 1.25em;
+}
+
+.legal ul + p {
+  margin-top: 4px;
+}
+
+.legal a {
+  color: var(--brass);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--brass) 45%, transparent);
+  text-underline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .legal a:hover {
+    text-decoration-color: var(--brass);
+  }
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding-block: 44px 28px;
+  color: var(--dust);
+  font-size: 0.92rem;
+}
+
+.footer-grid {
+  display: grid;
+  gap: 28px 40px;
+}
+
+@media (min-width: 720px) {
+  .footer-grid {
+    grid-template-columns: 1.6fr 1fr 1fr;
+  }
+}
+
+.footer-grid h2 {
+  margin: 0 0 10px;
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--faint);
+}
+
+.footer-about {
+  margin: 0;
+  max-width: 24rem;
+}
+
+.footer-about strong {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.35rem;
+  color: var(--star);
+}
+
+.footer-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.footer-links a {
+  color: var(--star);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .footer-links a:hover {
+    color: var(--brass);
+  }
+}
+
+.credits {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.credits div {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.credits dt {
+  color: var(--faint);
+  font-size: 0.875rem;
+}
+.credits a {
+  margin: 0;
+  color: var(--lv-easy);
+  font-weight: 900;
+  font-size: 1rem;
+  text-decoration: underline;
+}
+
+.footer-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--faint);
+  font-size: 0.84rem;
+}
+
+.footer-base p {
+  margin: 0;
+}
+
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+}
+
+.footer-legal a {
+  color: var(--dust);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .footer-legal a:hover {
+    color: var(--brass);
+  }
+}
+
+/* a hidden link that keyboard users meet first: it jumps past the header */
+.skip-link {
+  position: fixed;
+  top: 10px;
+  inset-inline-start: 10px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  background: var(--brass);
+  color: var(--space-0);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =========================================================
+   Light theme, header tools, search, right-to-left pages,
+   the book panel, and moving between pages
+   ========================================================= */
+
+/* while a saved Arabic/Kurdish page is being translated */
+html.i18n-wait body > header,
+html.i18n-wait body > main,
+html.i18n-wait body > footer {
+  visibility: hidden;
+}
+
+/* ---------- Light theme ----------
+   Set on <body>, so the moving figures (which read their colours
+   from <html>) keep their night-sky palette inside dark panels. */
+html[data-theme="light"] body {
+  color-scheme: light;
+  --space-0: #e2e5ec;
+  --space-1: #d8dce6;
+  --panel: #eceef3;
+  --panel-2: #dfe3eb;
+  --line: rgba(29, 34, 51, 0.13);
+  --line-2: rgba(29, 34, 51, 0.24);
+  --star: #1d2233;
+  --dust: #454c63;
+  --faint: #575e76;
+  /* each reaches 4.6:1 on the darkest paper (--space-1), so coloured text stays readable anywhere */
+  --brass: #875006;
+  --rose: #a8324c;
+  --ice: #1b619a;
+  --lv-beginner: #0b6d4a;
+  --lv-easy: #1a60a6;
+  --lv-medium: #875006;
+  --lv-hard: #a93626;
+  --lv-extreme: #6b42bb;
+  --on-accent: #ffffff;
+  --page-bg: #e2e5ec;
+}
+
+html[data-theme="light"] {
+  background: #e2e5ec;
+}
+
+/* The night-sky pieces keep the night colours in both themes: the hero, the two doors on
+   the home page, and the header while it floats over the hero. (A subject's figure is
+   night-coloured too; the words and the button around it use the page's colours.) */
+.hero,
+.door,
+.page-home .site-header:not(.is-solid) {
+  --space-0: #070618;
+  --space-1: #100d2c;
+  --panel: #131034;
+  --panel-2: #1a1642;
+  --line: rgba(196, 186, 255, 0.12);
+  --line-2: rgba(196, 186, 255, 0.22);
+  --star: #f4efe4;
+  --dust: #a49fc4;
+  --faint: #8580a8;
+  --brass: #f0b44a;
+  color: var(--star);
+}
+
+html[data-theme="light"] .hero {
+  background: linear-gradient(180deg, #100d2c, #0b0a22);
+}
+
+/* by day the atmosphere at the horizon glows a little brighter */
+html[data-theme="light"] .horizon {
+  box-shadow:
+    0 -1px 0 rgba(255, 240, 222, 0.75),
+    0 -5px 18px rgba(222, 205, 255, 0.5),
+    0 -26px 70px rgba(160, 132, 255, 0.34);
+}
+
+html[data-theme="light"] .tile canvas,
+html[data-theme="light"] .door {
+  background: radial-gradient(ellipse at 50% 40%, #1a1642, #100d2c 75%);
+}
+
+html[data-theme="light"] .cover {
+  box-shadow:
+    0 0 0 1px rgba(38, 30, 104, 0.1),
+    0 14px 26px -16px rgba(38, 30, 104, 0.55);
+}
+
+html[data-theme="light"] ::selection {
+  color: #fff;
+}
+
+/* ---------- Header tools ---------- */
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tool {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--hd-line);
+  background: var(--hd-button);
+  color: var(--hd-ink);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform var(--t-press) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .tool:hover {
+    background: var(--hd-button-hover);
+  }
+}
+
+.tool svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.tool-search {
+  min-width: 170px;
+  justify-content: flex-start;
+  color: var(--hd-ink-2);
+}
+
+.tool-label {
+  flex: 1;
+  text-align: start;
+}
+
+.tool-kbd {
+  padding: 1px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--hd-line);
+  font: 500 0.75rem/1.4 var(--sans);
+  color: var(--hd-ink-2);
+}
+
+.tool-theme .i-moon,
+html[data-theme="light"] .tool-theme .i-sun {
+  display: none;
+}
+
+html[data-theme="light"] .tool-theme .i-moon {
+  display: block;
+}
+
+.tool-code {
+  min-width: 1.2em;
+  font-size: 0.85rem;
+}
+
+.lang {
+  position: relative;
+}
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-end: 0;
+  z-index: 50;
+  min-width: 200px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 12px;
+  border: 1px solid var(--line-2);
+  background: var(--panel);
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
+  /* it grows out of the button that opened it */
+  transform-origin: top right;
+  transition:
+    opacity var(--t-press) var(--ease-out),
+    transform var(--t-press) var(--ease-out);
+}
+
+html[dir="rtl"] .lang-menu {
+  transform-origin: top left;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @starting-style {
+    .lang-menu {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+}
+
+.lang-menu button {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--star);
+  font: inherit;
+  font-size: 0.95rem;
+  text-align: start;
+  cursor: pointer;
+}
+
+.lang-menu button:focus-visible {
+  background: var(--panel-2);
+  outline: 2px solid var(--brass);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .lang-menu button:hover {
+    background: var(--panel-2);
+  }
+}
+
+.lang-short {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--line-2);
+  color: var(--dust);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.lang-menu [aria-checked="true"] .lang-short {
+  border-color: var(--brass);
+  background: var(--brass);
+  color: var(--space-0);
+}
+
+.lang-menu [aria-checked="true"] .lang-name {
+  font-weight: 600;
+}
+
+.lang-menu [lang="ar"],
+.lang-menu [lang="ku"] {
+  font-family: "Noto Sans Arabic", var(--sans);
+}
+
+@media (max-width: 860px) {
+  .tool-search {
+    min-width: 38px;
+    padding: 0;
+    justify-content: center;
+  }
+  .tool-label,
+  .tool-kbd {
+    display: none;
+  }
+}
+
+/* phones: brand and tools on one row, the two sections on a second row */
+@media (max-width: 640px) {
+  .header-inner {
+    flex-wrap: wrap;
+    min-height: 0;
+    padding-top: 10px;
+  }
+  .brand {
+    min-height: 38px; /* the height of the buttons added beside it, so nothing moves when they arrive */
+  }
+  .tools {
+    margin-inline-start: auto;
+  }
+  .nav {
+    order: 3;
+    width: 100%;
+    margin: 0;
+    gap: 22px;
+    border-top: 1px solid var(--hd-line);
+  }
+  .nav a {
+    padding: 9px 0 10px;
+  }
+  .nav a[aria-current="page"]::after {
+    bottom: 0;
+  }
+  .page-home .site-header:not(.is-solid) .nav {
+    border-top-color: transparent;
+  }
+}
+
+/* ---------- Search dialog ---------- */
+html.search-open {
+  overflow: hidden;
+}
+
+.search {
+  width: min(640px, calc(100% - 32px));
+  max-height: min(640px, calc(100% - 96px));
+  margin: 72px auto auto;
+  padding: 0;
+  border-radius: 16px;
+  border: 1px solid var(--line-2);
+  background: var(--panel);
+  color: var(--star);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+.search[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.search::backdrop {
+  background: rgba(7, 6, 24, 0.6);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+/* dialogs answer the tap: they arrive from where they will sit, and leave the same way
+   (the rules that use these are at the end of the book panel section) */
+@keyframes dlg-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+@keyframes dlg-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+}
+
+@keyframes dlg-sheet {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes dlg-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dlg-out {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+}
+
+@keyframes dlg-sheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 16px;
+  padding-inline: 16px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.search-box > svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--brass);
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  border: 0;
+  background: transparent;
+  color: var(--star);
+  font: inherit;
+  font-size: 1.08rem;
+  outline: none;
+}
+
+.search-box input::placeholder {
+  color: var(--faint);
+}
+
+.search-box input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-close {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--dust);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .search-close:hover {
+    background: var(--panel-2);
+    color: var(--star);
+  }
+}
+
+.search-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.search-results {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px 8px 12px;
+}
+
+.search-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 10px 6px;
+  font: 500 0.8rem/1.2 var(--sans);
+  color: var(--faint);
+}
+
+.search-count {
+  padding: 0 7px;
+  border-radius: 99px;
+  border: 1px solid var(--line-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--star);
+}
+
+.result[aria-selected="true"] {
+  background: var(--panel-2);
+}
+
+@media (hover: hover) {
+  .result:hover {
+    background: var(--panel-2);
+  }
+}
+
+.result[aria-selected="true"] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brass) 45%, transparent);
+}
+
+.result-orb {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #fff 0 8%,
+    var(--brass) 45%,
+    color-mix(in srgb, var(--brass) 45%, #000) 100%
+  );
+  opacity: 0.85;
+}
+
+/* a tiny drawn cover (see .cover-blank in style.css), shown until or instead of the image */
+.result-cover,
+.chat-book-cover {
+  --cv0: var(--cv, #f0b44a);
+  background:
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(240, 180, 74, 0.9) 0 3px,
+      transparent 3.6px
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      transparent 0 10px,
+      var(--cv0) 10.5px 11.3px,
+      transparent 11.8px
+    ),
+    radial-gradient(
+      120% 70% at 30% 0%,
+      rgba(255, 255, 255, 0.09),
+      transparent 62%
+    ),
+    linear-gradient(168deg, var(--cv-a, #2a2358), var(--cv-b, #0b0a22) 92%);
+  box-shadow: inset 2px 0 0 rgba(0, 0, 0, 0.28);
+}
+
+.result-cover {
+  flex: none;
+  width: 36px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 3px;
+}
+
+.result-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.result-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.result-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+.result-author {
+  color: var(--dust);
+  font-size: 0.85rem;
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+.result-meta {
+  margin-top: 2px;
+  color: var(--faint);
+  font-size: 0.8rem;
+}
+
+.result-level {
+  color: var(--lv, var(--brass));
+  font-weight: 600;
+}
+
+.result-title,
+.result-author,
+.result-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-hint,
+.search-empty {
+  margin: 14px 10px 6px;
+  color: var(--dust);
+}
+
+.search-empty strong {
+  color: var(--star);
+}
+
+.search-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 10px 4px;
+}
+
+.search-chip {
+  padding: 6px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--line-2);
+  color: var(--star);
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .search-chip:hover {
+    border-color: var(--brass);
+    color: var(--brass);
+  }
+}
+
+@media (max-width: 560px) {
+  .search {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+/* a book found through search glows for a moment */
+.book.is-found .cover {
+  animation: found 2.4s ease-out;
+}
+
+@keyframes found {
+  0%,
+  40% {
+    box-shadow:
+      0 0 0 3px var(--lv, var(--brass)),
+      0 0 34px 4px color-mix(in srgb, var(--lv, var(--brass)) 55%, transparent);
+  }
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 14px 26px -16px rgba(0, 0, 0, 0.9);
+  }
+}
+
+/* ---------- Arabic & Kurdish (right to left) ---------- */
+html[dir="rtl"] {
+  --serif: "Newsreader", "Noto Naskh Arabic", Georgia, serif;
+  --sans: "Onest", "Noto Sans Arabic", system-ui, sans-serif;
+  --arabic: "Noto Sans Arabic", "Readex Pro", system-ui, sans-serif;
+}
+
+html[dir="rtl"] body {
+  line-height: 1.75;
+}
+
+html[dir="rtl"] .page-title,
+html[dir="rtl"] .section-title,
+html[dir="rtl"] .subject-head h1,
+html[dir="rtl"] .door h2,
+html[dir="rtl"] .field-title {
+  line-height: 1.35;
+}
+
+html[dir="rtl"] .field-title small {
+  margin-left: 0;
+  margin-inline-start: auto;
+}
+
+html[dir="rtl"] .level-list span:last-child {
+  text-align: left;
+}
+
+html[dir="rtl"] .pill {
+  padding: 7px 11px 7px 13px;
+}
+
+/* book titles, authors and equations stay left-to-right */
+html[dir="rtl"] .book-title,
+html[dir="rtl"] .book-author,
+html[dir="rtl"] .cover-blank {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+html[dir="rtl"] .figure-cap {
+  unicode-bidi: isolate;
+}
+
+html[dir="rtl"] .wordmark,
+html[dir="rtl"] .brand-name {
+  direction: ltr;
+}
+
+html[dir="rtl"] .wordmark {
+  text-align: right;
+}
+
+html[dir="rtl"] .result-title,
+html[dir="rtl"] .result-author {
+  text-align: right;
+}
+
+html[dir="rtl"] .credits div {
+  grid-template-columns: 7.5rem 1fr;
+}
+
+@media (max-width: 440px) {
+  html[dir="rtl"] .nav {
+    gap: 18px;
+  }
+}
+
+/* ---------- note shown when a book's link isn't added yet ---------- */
+.soon-toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 80;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  margin: 0 auto;
+  text-align: center;
+  padding: 11px 18px 11px 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--star);
+  font-size: 0.92rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.soon-toast::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-inline-end: 9px;
+  border-radius: 50%;
+  background: var(--brass);
+  vertical-align: 1px;
+}
+.soon-toast.is-on {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .soon-toast {
+    transition: none;
+  }
+}
+
+/* ---------- Book panel (book-panel.js) ---------- */
+html.book-open {
+  overflow: hidden;
+}
+.book-panel {
+  --lv: var(--brass);
+  width: min(720px, calc(100% - 32px));
+  max-height: min(860px, calc(100% - 64px));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--line-2);
+  border-radius: 18px;
+  background: var(--panel);
+  color: var(--star);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+.book-panel.lv-beginner {
+  --lv: var(--lv-beginner);
+}
+.book-panel.lv-easy {
+  --lv: var(--lv-easy);
+}
+.book-panel.lv-medium {
+  --lv: var(--lv-medium);
+}
+.book-panel.lv-hard {
+  --lv: var(--lv-hard);
+}
+.book-panel.lv-extreme {
+  --lv: var(--lv-extreme);
+}
+.book-panel[open] {
+  display: flex;
+  flex-direction: column;
+}
+.book-panel::backdrop {
+  background: rgba(7, 6, 24, 0.66);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+.bp-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 32px 32px 36px;
+  border-top: 3px solid var(--lv);
+}
+.bp-close {
+  position: absolute;
+  top: 14px;
+  inset-inline-end: 14px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--star);
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .bp-close:hover {
+    border-color: var(--lv);
+  }
+}
+.bp-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.bp-head {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 26px;
+  align-items: end;
+  padding-inline-end: 34px;
+}
+.bp-cover {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--panel-2);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 22px 34px -18px rgba(0, 0, 0, 0.95);
+}
+.bp-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bp-level {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: var(--dust);
+}
+.bp-level .planet {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--lv);
+  box-shadow: 0 0 10px var(--lv);
+}
+.bp-level-name {
+  color: var(--lv);
+  font-weight: 600;
+}
+.bp-subject {
+  flex-basis: 100%;
+  color: var(--faint);
+}
+.bp-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+  line-height: 1.12;
+}
+.bp-author {
+  margin: 8px 0 0;
+  color: var(--dust);
+  font-size: 1rem;
+}
+.bp-note {
+  display: inline-block;
+  margin: 10px 0 0;
+  padding: 1px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  color: var(--dust);
+  font-size: 0.78rem;
+}
+.bp-note[hidden] {
+  display: none;
+}
+
+.bp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 26px 0 6px;
+}
+.bp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  color: var(--star);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.bp-btn svg {
+  width: 19px;
+  height: 19px;
+  flex: none;
+}
+@media (hover: hover) {
+  .bp-btn:hover {
+    border-color: var(--lv);
+  }
+}
+.bp-read {
+  background: var(--brass);
+  border-color: var(--brass);
+  color: #17133a;
+}
+@media (hover: hover) {
+  .bp-read:hover {
+    background: #f6c66c;
+    border-color: #f6c66c;
+  }
+}
+html[data-theme="light"] .bp-read {
+  color: #fff;
+}
+@media (hover: hover) {
+  html[data-theme="light"] .bp-read:hover {
+    background: #b06c0d;
+    border-color: #b06c0d;
+  }
+}
+.bp-btn[hidden] {
+  display: none;
+}
+
+.bp-body section {
+  padding: 20px 0 0;
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.bp-body h3 {
+  margin: 0 0 6px;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--lv);
+}
+.bp-body p {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--star);
+  opacity: 0.92;
+}
+.bp-empty {
+  margin-top: 24px !important;
+  color: var(--dust) !important;
+}
+
+/* the "coming soon" note when it sits inside the panel */
+.book-panel .soon-toast {
+  z-index: 5;
+}
+
+@media (max-width: 560px) {
+  .book-panel {
+    width: 100%;
+    max-width: 100%;
+    height: calc(100% - 24px);
+    max-height: none;
+    margin: auto 0 0;
+    border-width: 1px 0 0;
+    border-radius: 18px 18px 0 0;
+  }
+  .bp-scroll {
+    padding: 26px 18px calc(30px + env(safe-area-inset-bottom, 0px));
+  }
+  .bp-head {
+    grid-template-columns: 104px 1fr;
+    gap: 16px;
+    padding-inline-end: 30px;
+  }
+  .bp-title {
+    font-size: 1.45rem;
+  }
+  .bp-actions .bp-btn {
+    flex: 1 1 0;
+    padding: 0 12px;
+    white-space: nowrap;
+  }
+}
+
+/* opening and closing the search and the book panel (ui.js / book-panel.js add .is-closing) */
+@media (prefers-reduced-motion: no-preference) {
+  .search[open] {
+    animation: dlg-drop var(--t-mid) var(--ease-out);
+  }
+  .book-panel[open] {
+    animation: dlg-rise 0.36s var(--ease-out);
+  }
+  .search[open]::backdrop,
+  .book-panel[open]::backdrop {
+    animation: dlg-fade var(--t-mid) var(--ease-out);
+  }
+  .search[open].is-closing,
+  .book-panel[open].is-closing {
+    animation: dlg-out var(--t-fast) var(--ease) forwards;
+  }
+  .search[open].is-closing::backdrop,
+  .book-panel[open].is-closing::backdrop {
+    animation: dlg-fade var(--t-fast) var(--ease) reverse forwards;
+  }
+}
+/* opened from the keyboard, the search is simply there */
+.search[open].is-keyed:not(.is-closing),
+.search[open].is-keyed:not(.is-closing)::backdrop {
+  animation: none;
+}
+
+/* on phones the book panel is a sheet that slides up from the bottom */
+@media (prefers-reduced-motion: no-preference) and (max-width: 560px) {
+  .book-panel[open] {
+    animation: dlg-sheet 0.4s var(--ease-drawer);
+  }
+  .book-panel[open].is-closing {
+    animation: dlg-sheet-out 0.24s var(--ease) forwards;
+  }
+  .search[open] {
+    animation: dlg-fade var(--t-mid) var(--ease-out);
+  }
+}
+
+/* ---------- speed: on phones the panel and search fill the screen, so the
+   costly blur behind them is almost invisible; a slightly deeper tint replaces it ---------- */
+@media (max-width: 560px) {
+  .book-panel::backdrop,
+  .search::backdrop {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(7, 6, 24, 0.74);
+  }
+}
+
+/* ---------- themes and levels ----------
+   Moving to another page is a plain change of page: no animation between pages, which
+   on some phones froze the old page for a moment and slid the new one in. */
+
+/* the light/dark switch spreads out from its button (site.js runs the circle) */
+html.vt-theme::view-transition-old(root),
+html.vt-theme::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.vt-theme::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* shelves coming back into view after picking a level */
+.shelf.is-entering {
+  animation: shelf-in 0.3s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes shelf-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* ---------- Academic: a subject's Books / Lectures tabs ----------
+   Under the figure on both pages of a subject (tools/build.py writes them): two large
+   buttons side by side in one tray. The open one is filled; the other is a plain box that
+   clearly answers a tap. */
+.subject-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 18px 0 0;
+  padding: 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 18px;
+  background: var(--panel);
+}
+
+.subject-tab {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  color: var(--star);
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition:
+    color var(--t-fast) var(--ease),
+    background-color var(--t-fast) var(--ease),
+    transform var(--t-press) var(--ease-out);
+}
+
+.subject-tab svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.subject-tab svg .fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.subject-tab .n {
+  min-width: 1.9em;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--star) 10%, transparent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+@media (hover: hover) {
+  .subject-tab:not([aria-current]):hover {
+    background: var(--panel-2);
+  }
+}
+
+.subject-tab:not([aria-current]):active {
+  background: var(--panel-2);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .subject-tab:not([aria-current]):active {
+    transform: scale(0.97);
+  }
+}
+
+.subject-tab:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+/* the open tab: filled with the accent */
+.subject-tab[aria-current="page"] {
+  color: var(--on-accent);
+}
+
+.subject-tab[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--brass);
+}
+
+.subject-tab[aria-current="page"] .n {
+  background: color-mix(in srgb, var(--on-accent) 16%, transparent);
+}
+
+@media (max-width: 560px) {
+  .subject-tabs {
+    margin-top: 12px;
+  }
+  .subject-tab {
+    min-height: 52px;
+    gap: 8px;
+    font-size: 0.95rem;
+  }
+}
+
+/* search results for lecture courses (site.js) */
+.result-orb-course {
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 1px solid var(--lv, var(--brass));
+  opacity: 1;
+}
+
+.result-orb-course::before {
+  content: "";
+  width: 0;
+  height: 0;
+  margin-inline-start: 3px;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent var(--lv, var(--brass));
+}
+
+/* Text written in all three languages (course summaries):
+   only the chosen language shows. The language is set on <html> before the page paints. */
+html:not([data-lang="ar"]) [data-l="ar"],
+html:not([data-lang="ku"]) [data-l="ku"],
+html[data-lang="ar"] [data-l="en"],
+html[data-lang="ku"] [data-l="en"] {
+  display: none !important;
+}
+
+/* text for screen readers only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Phones: comfort ---------- */
+@media (max-width: 640px) {
+  /* level buttons: one row you can swipe, rather than two or three rows of buttons */
+  .pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: -16px;
+    padding: 2px 16px;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 14px,
+      #000 calc(100% - 22px),
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 14px,
+      #000 calc(100% - 22px),
+      transparent
+    );
+  }
+  .pills::-webkit-scrollbar {
+    display: none;
+  }
+  .pill {
+    flex: none;
+  }
+
+  /* less empty space between sections on a small screen */
+  .page-end {
+    height: 48px;
+  }
+  .site-footer {
+    padding-block: 32px 24px;
+  }
+  .orbits {
+    padding-block: 56px 64px;
+  }
+}
+
+/* a subject card's counts: books and courses as small icons with numbers */
+.tile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 6px;
+  color: var(--dust);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tile-meta .n {
+  color: var(--star);
+  font-weight: 600;
+}
+.tm {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.tm svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tm svg .fill {
+  fill: currentColor;
+  stroke: none;
+}
